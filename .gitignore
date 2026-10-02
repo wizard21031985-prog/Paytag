@@ -1,0 +1,16 @@
+# Python bytecode caches
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Local environment configuration adjustments
+.env
+.venv/
+env/
+venv/
+.idea
+
+# Operating System specific tracking metadata
+.DS_Store
+Thumbs.db

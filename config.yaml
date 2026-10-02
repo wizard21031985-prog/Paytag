@@ -1,0 +1,26 @@
+environment: "development"
+
+simulator:
+  base_url: "http://localhost:8765"
+  polling_interval_ms: 1000
+  timeout_seconds: 5
+
+database:
+  mongo_uri: "mongodb://localhost:27017"
+  business_db_name: "paytag_business"
+  technical_db_name: "paytag_technical"
+  min_log_level: "INFO"                 # Options: DEBUG, INFO, WARNING, ERROR
+  capped_collections:
+    system_logs_max_size: "500MB"
+    health_checks_max_size: "50MB"
+
+hardware_settings:
+  hotkeys:
+    start_session: "s"
+    neutralize_session: "n"
+
+  max_neutralize_retries: 3         # Retries if hardware fails a deactivation pulse
+  retry_delay_ms: 500               # Static delay between hardware retries
+
+  max_network_connect_retries: 2    # Fast retries if network call drops or times out
+  network_retry_delay_ms: 200       # Packet retry delay envelope
