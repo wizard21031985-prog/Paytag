@@ -234,3 +234,5 @@ Instead of monitoring all key combinations concurrently—which introduces input
 * **When Core State is IDLE:** The background hook registers exclusively to the start value (`S`). It is physically blind to `N`, meaning an operator clicking the completion button prematurely causes no application state interference.
 * **When Core State enters SCANNING:** The listener instantly drops the hook for `S` and shifts all focus to the completion key (`N`). The system cannot be spammed with overlapping transaction initiation triggers. This architectural gated mechanism creates hardware-level immunity against state race conditions.
 
+### 4.1 Input Interception Security & Environment Portability
+To guarantee maximum portability across host evaluation systems and eliminate the need for administrative root privileges or macOS Accessibility overrides, the client utilizes standard terminal input stream readers (`sys.stdin` hooks) rather than low-level OS kernel hook vectors. This ensures the application runs instantly inside any sandboxed Docker container or local terminal window while maintaining complete type-safe state transitions.
