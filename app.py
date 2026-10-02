@@ -6,7 +6,7 @@ from config.app_initializer import ApplicationInitializer
 
 class PayTagApplication:
     def __init__(self):
-        # Delegate the entire setup responsibility to the application initializer module
+        # Delegate setup to initializer (it will log its own bootstrapping steps)
         initializer = ApplicationInitializer("config.yaml")
         self.context = initializer.bootstrap()
 
@@ -19,28 +19,48 @@ class PayTagApplication:
         env = self.context.config['environment']
         sim_url = self.context.config['simulator']['base_url']
 
-        print(f"[SYSTEM ACTIVE] Running in '{env}' cluster envelope mode.")
-        print(f"[SYSTEM ACTIVE] Listening for edge hardware targets at: {sim_url}")
+        # Log terminal environment configurations on system activation
+        self.context.logger.log_system_event(
+            severity="INFO",
+            message=f"Terminal client active. Cluster envelope mode: '{env}'"
+        )
+        self.context.logger.log_system_event(
+            severity="INFO",
+            message=f"Listening for edge hardware simulator targets at: {sim_url}"
+        )
+        self.context.logger.log_system_event(
+            severity="INFO",
+            message="Core infrastructure ready. Awaiting state machine loop hooks."
+        )
 
         try:
-            print("\n[READY] Core infrastructure ready. Awaiting state machine loop hooks...")
-            print("-> Press Ctrl+C to exit process framework.")
             while True:
                 time.sleep(1)
         except KeyboardInterrupt:
             self.shutdown()
 
     def shutdown(self):
-        """Executes orderly disconnects on active application closures."""
-        print("\n[SHUTDOWN] Executing graceful terminal resource drainage sequences...")
+        """Executes orderly disconnects and handles thread pool worker drainage on application closure."""
+        # Log a warning to signify the application process is shutting down
+        self.context.logger.log_system_event(
+            severity="WARNING",
+            message="Process loop execution interrupted by user command. Initiating graceful terminal teardown..."
+        )
 
-        # Gracefully shut down the asynchronous logger if it was initialized
+        # Gracefully shut down the asynchronous logger thread pool worker queue
         if self.context.logger:
             try:
                 self.context.logger.shutdown()
-                print("[SHUTDOWN] Asynchronous logging workers safely drained.")
+                # Final local stdout flush as the thread pool closes down
+                sys.stdout.write(
+                    f"[{time.strftime('%Y-%m-%dT%H:%M:%S')}] [INFO] [TEARDOWN] Asynchronous logging workers safely drained.\n")
+                sys.stdout.flush()
             except Exception as e:
-                print(f"[SHUTDOWN WARNING] Error draining logger pools: {e}", file=sys.stderr)
+                sys.stderr.write(
+                    f"[{time.strftime('%Y-%m-%dT%H:%M:%S')}] [ERROR] [TEARDOWN WARNING] Error draining logger pools: {e}\n")
+                sys.stderr.flush()
 
-        print("[OFFLINE] PayTag Client completely disconnected.")
+        sys.stdout.write(
+            f"[{time.strftime('%Y-%m-%dT%H:%M:%S')}] [INFO] [TEARDOWN] PayTag Terminal Integration client completely offline.\n")
+        sys.stdout.flush()
         sys.exit(0)
