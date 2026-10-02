@@ -27,7 +27,6 @@ class DatabaseIngestionWorker:
         self._thread = threading.Thread(target=self._worker_loop, name="DB_Worker_Thread", daemon=True)
         self._thread.start()
 
-
         self.logger.log_system_event(
             severity="INFO",
             message="Background database ingestion stream thread successfully armed."
@@ -69,10 +68,12 @@ class DatabaseIngestionWorker:
         If MongoDB fails over the wire, exceptions bubble up here to be caught!
         """
         try:
-            self.logger.log_system_event(
-                severity="INFO",
-                message=f"Database Action: {DbAction.name}, payload : {payload}."
-            )
+            # Filter out logging actions to prevent infinite queue loops.
+            if action not in [DbAction.INSERT_LOG, DbAction.INSERT_HEARTBEAT]:
+                self.logger.log_system_event(
+                    severity="INFO",
+                    message=f"Database Action: {action.name}, payload : {payload}."
+                )
 
             if action == DbAction.INSERT_SESSION:
                 self.db_repo.insert_session(payload)
