@@ -134,15 +134,10 @@ To ensure the core business logic remains completely independent of the underlyi
 
 ---
 
-## 1.3 Asynchronous Non-Blocking Database I/O & Telemetry Routing
-Database round-trips and physical disk operations introduce latency. If technical logging or transactional writes run synchronously on the main thread, they will block the high-frequency 1000ms scanning loop or cause noticeable keyboard input lag for the operator during hotkey interception.
+## 1.3 Multithreaded Telemetry Architecture & Inter-Thread Message Queue
+To isolate system latency and eliminate input lag across system boundaries, the application implements a decoupled, asynchronous concurrency model. Rather than forcing threads to execute blocking actions or manage messy cross-thread states directly, communication is synchronized via a **"Many Providers, One Consumer" Inter-Thread Message Queue** pattern using Python's native, thread-safe `queue.Queue`.
 
 To eliminate performance degradation, the application implements an asynchronous, thread-pooled architecture:
-
-### Multithreaded Execution Rules:
-1. **Zero-Latency Main Loop:** When the State Machine requests an operation (e.g., logging a soft warning or inserting a basket item), the interface layer copies the data structure and **instantly dispatches the execution task to a background `ThreadPoolExecutor` worker queue**, returning control to the main process in less than 1 millisecond.
-2. **Graceful Teardown Draining:** During normal operations, the background workers silently absorb database latency. Upon system shutdown, a graceful teardown routine ensures that the thread pool drains and completes all outstanding background write requests before the process exits, preventing data truncation.
-
 
 ---
 

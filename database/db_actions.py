@@ -1,0 +1,11 @@
+# database/db_actions.py
+from enum import Enum
+
+class DbAction(str, Enum):
+    INSERT_SESSION = "INSERT_SESSION"
+    UPDATE_SESSION = "UPDATE_SESSION"
+    UPSERT_ITEM = "UPSERT_ITEM"
+    UPDATE_ITEM = "UPDATE_ITEM"
+    DELETE_ITEM = "DELETE_ITEM"
+    INSERT_LOG = "INSERT_LOG"
+    INSERT_HEARTBEAT = "INSERT_HEARTBEAT"
